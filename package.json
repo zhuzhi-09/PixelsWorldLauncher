@@ -1,0 +1,101 @@
+{
+  "name": "pixels-world-launcher",
+  "productName": "PixelsWorld Launcher",
+  "version": "0.1.0",
+  "description": "跨平台 Material Design 3 Minecraft 启动器",
+  "author": {
+    "name": "zhuzhi-09",
+    "email": "zhuzhi-09@users.noreply.github.com"
+  },
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/zhuzhi-09/PixelsWorldLauncher",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zhuzhi-09/PixelsWorldLauncher.git"
+  },
+  "main": "out/main/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.web.json && tsc --noEmit -p tsconfig.node.json",
+    "dist": "electron-vite build && electron-builder"
+  },
+  "dependencies": {
+    "adm-zip": "^0.6.1",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@material/material-color-utilities": "^0.4.0",
+    "@material/web": "^2.5.0",
+    "@types/adm-zip": "^0.5.8",
+    "@types/node": "^26.6.5",
+    "@vitejs/plugin-vue": "^6.0.10",
+    "electron": "^44.9.1",
+    "electron-builder": "^26.15.3",
+    "electron-vite": "^6.0.0",
+    "material-symbols": "^0.48.0",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.4",
+    "vue": "^3.5.44",
+    "vue-tsc": "^3.3.13"
+  },
+  "build": {
+    "appId": "com.pixelsworld.launcher",
+    "productName": "PixelsWorld Launcher",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "out/**",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "${productName}-${version}-${arch}-setup.${ext}"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "category": "public.app-category.games",
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Game",
+      "maintainer": "zhuzhi-09 <zhuzhi-09@users.noreply.github.com>",
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-${arch}-portable.${ext}"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "zhuzhi-09",
+        "repo": "PixelsWorldLauncher",
+        "releaseType": "release"
+      }
+    ]
+  }
+}

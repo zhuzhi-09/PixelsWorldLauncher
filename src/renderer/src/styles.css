@@ -1,0 +1,196 @@
+:root {
+  --md-ref-typeface-brand: 'Roboto', 'Segoe UI Variable Text', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei UI',
+    'Noto Sans SC', system-ui, sans-serif;
+  --md-ref-typeface-plain: var(--md-ref-typeface-brand);
+  --md-icon-font: 'Material Symbols Rounded';
+  --mono: 'Cascadia Mono', 'JetBrains Mono', Consolas, 'SF Mono', Menlo, monospace;
+  color-scheme: light dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--md-ref-typeface-plain);
+  background: var(--md-sys-color-surface-container);
+  color: var(--md-sys-color-on-surface);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  transition: background-color 0.3s;
+}
+
+input,
+textarea {
+  user-select: text;
+}
+
+/* 滚动条 */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 22%, transparent);
+  border-radius: 10px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 通用布局工具 */
+.page {
+  height: 100%;
+  overflow-y: auto;
+  padding: 24px 28px 96px;
+}
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.page-header h1 {
+  margin: 0;
+  flex: 1;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+.muted {
+  color: var(--md-sys-color-on-surface-variant);
+}
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* MD3 卡片 */
+.card {
+  background: var(--md-sys-color-surface-container-low);
+  border-radius: 16px;
+  padding: 16px;
+  position: relative;
+}
+.card.filled {
+  background: var(--md-sys-color-surface-container-highest);
+}
+.card.outlined {
+  background: var(--md-sys-color-surface);
+  border: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.section-title {
+  margin: 28px 4px 10px;
+  color: var(--md-sys-color-primary);
+}
+
+md-dialog {
+  --md-dialog-container-color: var(--md-sys-color-surface-container-high);
+  max-width: min(560px, calc(100vw - 48px));
+}
+
+md-list {
+  --md-list-container-color: transparent;
+  padding: 0;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 16px;
+  color: var(--md-sys-color-on-surface-variant);
+  text-align: center;
+}
+.empty md-icon {
+  --md-icon-size: 48px;
+  color: var(--md-sys-color-outline);
+}
+
+/* 版本/加载器标签 */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+.tag.tertiary {
+  background: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
+}
+/* 选中卡片本身是 secondary-container，标签换成表面色以保持可见 */
+.current .tag:not(.tertiary) {
+  background: var(--md-sys-color-surface-container-lowest);
+  color: var(--md-sys-color-on-surface);
+}
+
+/* MD3 分段按钮 */
+.segmented {
+  display: inline-flex;
+  align-self: flex-start;
+  flex: none;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: 20px;
+  overflow: hidden;
+}
+.segmented button {
+  all: unset;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--md-sys-color-on-surface);
+}
+.segmented button + button {
+  border-left: 1px solid var(--md-sys-color-outline);
+}
+.segmented button.on {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+.segmented md-icon {
+  --md-icon-size: 18px;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition:
+    opacity 0.2s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.25s cubic-bezier(0.2, 0, 0, 1);
+}
+.fade-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.fade-leave-to {
+  opacity: 0;
+}

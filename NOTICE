@@ -1,0 +1,39 @@
+PixelsWorld Launcher
+Copyright 2026 zhuzhi-09
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+------------------------------------------------------------------------------
+Third-party acknowledgements
+------------------------------------------------------------------------------
+
+PCL-CE (Plain Craft Launcher Community Edition)
+https://github.com/PCL-Community/PCL-CE
+
+  For interoperability with PCL-CE, parts of src/main/core/pcl/ follow the
+  configuration format, storage locations and encryption format defined in the
+  PCL.Core project of PCL-CE, which is licensed under the Apache License 2.0:
+    - PCL.Core/App/Configuration (config file locations, keys and value formats)
+    - PCL.Core/Utils/Secret/EncryptHelper.cs and PCL.Core/Utils/Encryption
+      (encrypted value format)
+    - PCL.Core/Minecraft/Java/UserPreference (Java preference format)
+    - PCL.Core/App/Config.cs (default JVM arguments)
+
+  Some launch behaviors (version isolation policy, memory slider scale,
+  game folder discovery) are independently reimplemented to stay compatible
+  with PCL-CE. No source code from the "Plain Craft Launcher 2" directory of
+  PCL-CE is included in this product.
+
+  PixelsWorld Launcher is not affiliated with or endorsed by the PCL or
+  PCL-CE projects.
+
+PlainToolkit.CngProtectedData
+https://github.com/PCL-Community/PlainToolkit.CngProtectedData
+
+  The protected data layout used when reading PCL-CE user keys follows this
+  library (itself derived from System.Security.Cryptography.ProtectedData of
+  the .NET runtime, MIT License).
+
+Minecraft is a trademark of Mojang Synergies AB. This product is not an
+official Minecraft product and is not approved by or associated with Mojang
+or Microsoft.

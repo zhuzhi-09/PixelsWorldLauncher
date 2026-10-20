@@ -32,7 +32,8 @@ PixelsWorld 是一个开源的 Minecraft 启动器，界面完全遵循 Google �
 
 ## 功能
 
-- **安装**：原版（正式版 / 快照 / 远古版）与 Fabric，缺失文件在启动前自动补全
+- **安装**：原版（正式版 / 预览版 / 远古版 / 愚人节版），以及 Fabric、Quilt、Legacy Fabric、LiteLoader，可自定义版本名称；缺失文件在启动前自动补全
+- **社区资源**：从 Modrinth 搜索并安装模组、数据包、资源包、光影，按游戏版本与加载器筛选兼容文件，自动安装前置模组；支持收藏夹
 - **启动**：支持新旧两种参数格式与 `inheritsFrom` 继承；实时查看游戏日志（log4j XML 日志转为可读文本）
 - **Java**：自动检测本机 Java，没有合适版本时自动下载 Mojang 官方 Java 运行时
 - **账户**：离线账户、微软账户（设备代码登录，令牌由系统钥匙串加密保存）
@@ -104,7 +105,9 @@ src/
       config.ts      配置读写
       download.ts    并发下载、镜像、sha1 校验
       version.ts     版本 JSON 解析、规则判断、库文件解析
-      install.ts     原版 / Fabric 安装与文件补全
+      install.ts     原版安装与文件补全
+      loaders.ts     Fabric / Quilt / Legacy Fabric / LiteLoader 安装
+      modrinth.ts    Modrinth 资源搜索、安装与收藏夹
       instance.ts    版本分类、加载器识别、版本隔离
       folders.ts     游戏文件夹识别与切换
       memory.ts      内存分配
@@ -119,8 +122,9 @@ src/
 
 ## 后续计划
 
-- Forge / NeoForge / Quilt 安装
-- Modrinth / CurseForge 模组和整合包下载
+- Forge / NeoForge / Cleanroom、OptiFine 安装
+- Modrinth 整合包安装
+- CurseForge 资源与世界下载、LabyMod
 - 应用图标、自动更新
 
 ## 许可与致谢

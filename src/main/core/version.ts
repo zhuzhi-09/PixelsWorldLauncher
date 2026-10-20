@@ -200,7 +200,9 @@ export function resolveLibraries(v: VersionJson): ResolvedLibrary[] {
     }
 
     const a = lib.downloads?.artifact
-    if (a || !lib.downloads) {
+    // 只有 natives、没有 downloads 信息的旧格式库（如 lwjgl-platform）不存在主 jar
+    const nativesOnly = !!lib.natives && !lib.downloads
+    if (a || (!lib.downloads && !nativesOnly)) {
       const rel = a?.path ?? mavenPath(lib.name)
       const base = (lib.url ?? 'https://libraries.minecraft.net/').replace(/\/?$/, '/')
       if (a && !a.url) continue // 部分加载器的库需要本地生成，跳过下载

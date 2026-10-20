@@ -8,14 +8,10 @@ import { detectPcl, importFromPcl } from './core/pcl/import'
 import { readInstanceSettings, writeInstanceSettings } from './core/pcl/instanceConfig'
 import { addOffline, cancelMicrosoft, listAccounts, loginMicrosoft, removeAccount } from './core/accounts'
 import { getConfig, setConfig } from './core/config'
-import {
-  fabricLoaders,
-  installedVersions,
-  installFabric,
-  installVanilla,
-  remoteVersions,
-  removeVersion
-} from './core/install'
+import { installedVersions, installVanilla, remoteManifest, removeVersion } from './core/install'
+import { installLoader, LOADER_NAMES, loaderVersions } from './core/loaders'
+import * as modrinth from './core/modrinth'
+import type { LoaderKind, ResourceInstallRequest } from '@shared/types'
 import { listJavas } from './core/java'
 import { gameStatus, killGame, launchGame } from './core/launch'
 import { broadcast, runTask } from './core/tasks'
@@ -85,13 +81,28 @@ function registerIpc(): void {
   })
 
   // 版本
-  handle('versions:remote', () => remoteVersions())
+  handle('versions:manifest', () => remoteManifest())
   handle('versions:installed', () => installedVersions())
-  handle('versions:install', (id: string) => runTask(`安装 ${id}`, (t) => installVanilla(id, t)))
-  handle('versions:fabricLoaders', (gv: string) => fabricLoaders(gv))
-  handle('versions:installFabric', (gv: string, loader: string) =>
-    runTask(`安装 Fabric ${gv}`, (t) => installFabric(gv, loader, t))
+  handle('versions:install', (id: string, name?: string) =>
+    runTask(`安装 ${name || id}`, (t) => installVanilla(id, t, name))
   )
+  handle('versions:loaderVersions', (kind: LoaderKind, gv: string) => loaderVersions(kind, gv))
+  handle('versions:installLoader', (kind: LoaderKind, gv: string, lv: string, name?: string) =>
+    runTask(`安装 ${LOADER_NAMES[kind]} ${gv}`, (t) => installLoader(kind, gv, lv, t, name))
+  )
+  handle('versions:worlds', (id: string) => modrinth.worldsOf(safeId(id)))
+
+  // 社区资源（Modrinth）
+  handle('resources:search', (q) => modrinth.search(q))
+  handle('resources:project', (id: string) => modrinth.project(id))
+  handle('resources:versions', (id: string, filter) => modrinth.versions(id, filter))
+  handle('resources:gameVersions', () => modrinth.gameVersions())
+  handle('resources:install', (req: ResourceInstallRequest) =>
+    runTask('下载资源', (t) => modrinth.install({ ...req, instanceId: safeId(req.instanceId) }, t))
+  )
+  handle('favorites:list', () => modrinth.listFavorites())
+  handle('favorites:add', (f) => modrinth.addFavorite(f))
+  handle('favorites:remove', (id: string) => modrinth.removeFavorite(id))
   handle('versions:remove', (id: string) => removeVersion(id))
   handle('versions:openFolder', (id: string) => shell.openPath(paths.versionDir(id)))
   handle('versions:settings', (id: string) => readInstanceSettings(paths.versionDir(safeId(id))))

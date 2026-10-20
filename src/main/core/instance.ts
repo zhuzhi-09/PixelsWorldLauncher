@@ -1,6 +1,7 @@
 import { existsSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import type { InstalledVersion, LoaderType } from '@shared/types'
+import { isAprilFools } from '@shared/versions'
 import { getConfig } from './config'
 import { readInstanceSettings, writeInstanceSettings } from './pcl/instanceConfig'
 import { paths, readVersionJson, resolveVersion, VersionJson } from './version'
@@ -42,13 +43,10 @@ async function rootVersionId(id: string, depth = 0): Promise<string> {
   return rootVersionId(v.inheritsFrom, depth + 1)
 }
 
-/** 愚人节版本的常见名称 */
-const FOOL = /^(2\.0|15w14a|1\.rv-pre1|3d shareware|20w14infinite|22w13oneblockatatime|23w13a_or_b|24w14potato|25w14craftmine)/i
-
-/** PCL-CE 的 McInstanceState 判断：愚人节 / 远古 / 快照均视为非正式版 */
+/** 愚人节 / 远古 / 快照均视为非正式版 */
 function isNonRelease(v: VersionJson, vanilla: string, name: string): boolean {
   const type = v.type ?? ''
-  if (type === 'fool' || FOOL.test(vanilla)) return true
+  if (type === 'fool' || isAprilFools(vanilla, v.releaseTime)) return true
   if (type.startsWith('old_')) return true
   if (type === 'snapshot' || type === 'pending') return true
   if (/combat/i.test(name)) return true

@@ -22,16 +22,29 @@ const api: LauncherApi = {
     pickFile: () => invoke('config:pickFile')
   },
   versions: {
-    remote: () => invoke('versions:remote'),
+    manifest: () => invoke('versions:manifest'),
     installed: () => invoke('versions:installed'),
-    install: (id) => invoke('versions:install', id),
-    fabricLoaders: (gv) => invoke('versions:fabricLoaders', gv),
-    installFabric: (gv, l) => invoke('versions:installFabric', gv, l),
+    install: (id, name) => invoke('versions:install', id, name),
+    loaderVersions: (kind, gv) => invoke('versions:loaderVersions', kind, gv),
+    installLoader: (kind, gv, lv, name) => invoke('versions:installLoader', kind, gv, lv, name),
+    worlds: (id) => invoke('versions:worlds', id),
     remove: (id) => invoke('versions:remove', id),
     openFolder: (id) => invoke('versions:openFolder', id),
     settings: (id) => invoke('versions:settings', id),
     setSettings: (id, patch) => invoke('versions:setSettings', id, patch),
     memoryPreview: (id) => invoke('versions:memoryPreview', id)
+  },
+  resources: {
+    search: (q) => invoke('resources:search', q),
+    project: (id) => invoke('resources:project', id),
+    versions: (id, filter) => invoke('resources:versions', id, filter),
+    install: (req) => invoke('resources:install', req),
+    gameVersions: () => invoke('resources:gameVersions')
+  },
+  favorites: {
+    list: () => invoke('favorites:list'),
+    add: (f) => invoke('favorites:add', f),
+    remove: (id) => invoke('favorites:remove', id)
   },
   folders: {
     list: () => invoke('folders:list'),

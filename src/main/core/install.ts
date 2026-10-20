@@ -1,22 +1,27 @@
 import { existsSync } from 'node:fs'
 import { copyFile, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
-import type { FabricLoaderVersion, InstalledVersion, RemoteVersion } from '@shared/types'
+import type { InstalledVersion, RemoteManifest, RemoteVersion } from '@shared/types'
+import { isAprilFools } from '@shared/versions'
 import { describeInstance, gameDirFor } from './instance'
 import { DownloadItem, downloadAll, downloadFile, fetchJson, isComplete } from './download'
 import { Task } from './tasks'
 import { paths, resolveLibraries, resolveVersion, VersionJson } from './version'
 
 const MANIFEST = 'https://piston-meta.mojang.com/mc/game/version_manifest_v2.json'
-const FABRIC_META = 'https://meta.fabricmc.net/v2'
 
-let manifestCache: { at: number; versions: RemoteVersion[] } | null = null
+let manifestCache: { at: number; data: RemoteManifest } | null = null
+
+export async function remoteManifest(): Promise<RemoteManifest> {
+  if (manifestCache && Date.now() - manifestCache.at < 10 * 60_000) return manifestCache.data
+  const data = await fetchJson<RemoteManifest>(MANIFEST)
+  for (const v of data.versions) v.fool = isAprilFools(v.id, v.releaseTime)
+  manifestCache = { at: Date.now(), data }
+  return data
+}
 
 export async function remoteVersions(): Promise<RemoteVersion[]> {
-  if (manifestCache && Date.now() - manifestCache.at < 10 * 60_000) return manifestCache.versions
-  const data = await fetchJson<{ versions: RemoteVersion[] }>(MANIFEST)
-  manifestCache = { at: Date.now(), versions: data.versions }
-  return data.versions
+  return (await remoteManifest()).versions
 }
 
 // ---------- 已安装版本 ----------
@@ -109,38 +114,37 @@ export async function ensureVersionFiles(id: string, task: Task): Promise<Versio
 }
 
 
-// ---------- 安装原版 ----------
+// ---------- 安装 ----------
 
-export async function installVanilla(id: string, task: Task): Promise<void> {
+/** 版本名称用作文件夹名，排除非法字符 */
+export function checkVersionName(name: string): string {
+  const n = name.trim()
+  if (!n || n.length > 64 || /[\\/:*?"<>|]/.test(n) || n === '.' || n === '..') {
+    throw new Error('版本名称不能为空，且不能包含 \\ / : * ? " < > |')
+  }
+  if (existsSync(paths.versionDir(n))) throw new Error(`已存在名为 ${n} 的版本`)
+  return n
+}
+
+/** 写入版本 JSON（可改名）并补全文件，返回最终版本名 */
+export async function saveVersionJson(json: VersionJson, task: Task, name?: string): Promise<string> {
+  const id = name ? checkVersionName(name) : json.id
+  json.id = id
+  await mkdir(paths.versionDir(id), { recursive: true })
+  await writeFile(paths.versionJson(id), JSON.stringify(json, null, 2))
+  await ensureVersionFiles(id, task)
+  return id
+}
+
+export async function installVanilla(id: string, task: Task, name?: string): Promise<string> {
   task.stage('获取版本信息')
   const entry = (await remoteVersions()).find((v) => v.id === id)
   if (!entry) throw new Error(`找不到版本 ${id}`)
   const json = await fetchJson<VersionJson>(entry.url)
-  await mkdir(paths.versionDir(id), { recursive: true })
-  await writeFile(paths.versionJson(id), JSON.stringify(json, null, 2))
-  await ensureVersionFiles(id, task)
+  return saveVersionJson(json, task, name && name !== id ? name : undefined)
 }
 
-// ---------- Fabric ----------
-
-export async function fabricLoaders(gameVersion: string): Promise<FabricLoaderVersion[]> {
-  const list = await fetchJson<{ loader: FabricLoaderVersion }[]>(
-    `${FABRIC_META}/versions/loader/${encodeURIComponent(gameVersion)}`
-  )
-  return list.map((x) => x.loader)
-}
-
-export async function installFabric(gameVersion: string, loader: string, task: Task): Promise<string> {
-  if (!existsSync(paths.versionJson(gameVersion))) {
-    await installVanilla(gameVersion, task)
-  }
-  task.stage('获取 Fabric 配置')
-  const profile = await fetchJson<VersionJson>(
-    `${FABRIC_META}/versions/loader/${encodeURIComponent(gameVersion)}/${encodeURIComponent(loader)}/profile/json`
-  )
-  const id = profile.id
-  await mkdir(paths.versionDir(id), { recursive: true })
-  await writeFile(paths.versionJson(id), JSON.stringify(profile, null, 2))
-  await ensureVersionFiles(id, task)
-  return id
+/** 确保加载器依赖的原版已安装（以原版版本号命名） */
+export async function ensureVanilla(gameVersion: string, task: Task): Promise<void> {
+  if (!existsSync(paths.versionJson(gameVersion))) await installVanilla(gameVersion, task)
 }

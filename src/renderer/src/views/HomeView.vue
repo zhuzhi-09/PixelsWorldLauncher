@@ -26,7 +26,7 @@ async function launch(): Promise<void> {
   }
   if (!version.value) {
     toast('请先安装一个游戏版本')
-    store.page = 'versions'
+    store.page = 'download'
     return
   }
   store.logs = []
@@ -89,7 +89,7 @@ const logLevel = (l: string) =>
         <md-icon class="muted">chevron_right</md-icon>
       </button>
 
-      <button class="card select-card" @click="store.installed.length ? (pickerOpen = true) : (store.page = 'versions')">
+      <button class="card select-card" @click="store.installed.length ? (pickerOpen = true) : (store.page = 'download')">
         <md-ripple></md-ripple>
         <div class="placeholder version"><md-icon>deployed_code</md-icon></div>
         <div class="grow">

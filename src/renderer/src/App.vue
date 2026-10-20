@@ -6,11 +6,12 @@ import TaskPanel from './components/TaskPanel.vue'
 import Snackbar from './components/Snackbar.vue'
 import HomeView from './views/HomeView.vue'
 import VersionsView from './views/VersionsView.vue'
+import DownloadView from './views/DownloadView.vue'
 import AccountsView from './views/AccountsView.vue'
 import SettingsView from './views/SettingsView.vue'
 import { store } from './store'
 
-const views = { home: HomeView, versions: VersionsView, accounts: AccountsView, settings: SettingsView }
+const views = { home: HomeView, versions: VersionsView, download: DownloadView, accounts: AccountsView, settings: SettingsView }
 const view = computed(() => views[store.page])
 </script>
 

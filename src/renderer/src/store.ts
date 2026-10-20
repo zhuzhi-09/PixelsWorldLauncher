@@ -1,16 +1,18 @@
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import type {
+  Favorite,
   GameStatus,
   InstalledVersion,
   LauncherConfig,
   PublicAccount,
+  ResourceHit,
   TaskProgress
 } from '@shared/types'
 import { applyTheme } from './theme'
 
 export const api = window.launcher
 
-export type Page = 'home' | 'versions' | 'accounts' | 'settings'
+export type Page = 'home' | 'versions' | 'download' | 'accounts' | 'settings'
 
 export const store = reactive({
   page: 'home' as Page,
@@ -105,6 +107,31 @@ export const ISOLATION_OPTIONS = [
   { value: 3, label: '隔离非正式版与可安装 Mod 的版本' },
   { value: 4, label: '隔离所有版本' }
 ] as const
+
+// ---------- 收藏夹 ----------
+
+export const favorites = ref<Favorite[]>([])
+
+export async function loadFavorites(): Promise<void> {
+  favorites.value = await api.favorites.list()
+}
+
+export async function toggleFavorite(r: ResourceHit): Promise<void> {
+  if (favorites.value.some((f) => f.id === r.id)) {
+    favorites.value = await api.favorites.remove(r.id)
+    toast(`已取消收藏 ${r.title}`)
+  } else {
+    favorites.value = await api.favorites.add({
+      id: r.id,
+      type: r.type,
+      title: r.title,
+      icon: r.icon,
+      author: r.author,
+      description: r.description
+    })
+    toast(`已收藏 ${r.title}`)
+  }
+}
 
 /** 切换游戏文件夹后刷新版本列表 */
 export async function switchFolder(path: string): Promise<void> {

@@ -121,6 +121,13 @@ export interface RemoteVersion {
   url: string
   releaseTime: string
   sha1?: string
+  /** 愚人节版本 */
+  fool?: boolean
+}
+
+export interface RemoteManifest {
+  latest: { release: string; snapshot: string }
+  versions: RemoteVersion[]
 }
 
 export interface InstalledVersion {
@@ -154,9 +161,92 @@ export type LoaderType =
   | 'labymod'
   | 'unknown'
 
-export interface FabricLoaderVersion {
+/** 可以在原版之上直接安装的加载器 */
+export type LoaderKind = 'fabric' | 'quilt' | 'legacyfabric' | 'liteloader'
+
+export interface LoaderVersion {
   version: string
   stable: boolean
+}
+
+// ---------- Modrinth ----------
+
+export type ResourceType = 'mod' | 'modpack' | 'resourcepack' | 'shader' | 'datapack'
+
+export interface ResourceSearch {
+  type: ResourceType
+  query: string
+  gameVersion?: string
+  /** Modrinth 的加载器标签，例如 fabric、forge */
+  loader?: string
+  sort: 'relevance' | 'downloads' | 'follows' | 'newest' | 'updated'
+  offset: number
+}
+
+export interface ResourceHit {
+  id: string
+  slug: string
+  type: ResourceType
+  title: string
+  description: string
+  author: string
+  icon?: string
+  downloads: number
+  follows: number
+  updated: string
+  categories: string[]
+  gameVersions: string[]
+}
+
+export interface ResourceSearchResult {
+  hits: ResourceHit[]
+  total: number
+}
+
+export interface ResourceProject extends ResourceHit {
+  body: string
+  links: { source?: string; wiki?: string; issues?: string; page: string }
+  gallery: string[]
+}
+
+export interface ResourceVersion {
+  id: string
+  name: string
+  versionNumber: string
+  type: 'release' | 'beta' | 'alpha'
+  gameVersions: string[]
+  loaders: string[]
+  published: string
+  downloads: number
+  file: { name: string; url: string; size: number; sha1: string }
+  /** 必需的前置（项目 ID） */
+  requires: string[]
+}
+
+export interface ResourceInstallRequest {
+  versionId: string
+  /** 安装到哪个游戏版本 */
+  instanceId: string
+  type: ResourceType
+  /** 数据包需要指定世界名称 */
+  world?: string
+}
+
+export interface ResourceInstallResult {
+  installed: string[]
+  skipped: string[]
+  /** 找不到兼容版本的前置 */
+  missing: string[]
+}
+
+export interface Favorite {
+  id: string
+  type: ResourceType
+  title: string
+  icon?: string
+  author: string
+  description: string
+  addedAt: number
 }
 
 export interface JavaInfo {
@@ -200,17 +290,32 @@ export interface LauncherApi {
     pickFile(): Promise<string | null>
   }
   versions: {
-    remote(): Promise<RemoteVersion[]>
+    manifest(): Promise<RemoteManifest>
     installed(): Promise<InstalledVersion[]>
-    install(id: string): Promise<void>
-    fabricLoaders(gameVersion: string): Promise<FabricLoaderVersion[]>
-    installFabric(gameVersion: string, loader: string): Promise<string>
+    /** 安装原版，可指定版本名称；返回最终版本名 */
+    install(id: string, name?: string): Promise<string>
+    loaderVersions(kind: LoaderKind, gameVersion: string): Promise<LoaderVersion[]>
+    installLoader(kind: LoaderKind, gameVersion: string, loaderVersion: string, name?: string): Promise<string>
+    /** 版本运行目录中的存档（用于安装数据包） */
+    worlds(id: string): Promise<string[]>
     remove(id: string): Promise<void>
     openFolder(id: string): Promise<void>
     settings(id: string): Promise<InstanceSettings>
     setSettings(id: string, patch: Partial<InstanceSettings>): Promise<InstanceSettings>
     /** 按当前设置计算出的实际内存（GB），用于界面显示 */
     memoryPreview(id: string | null): Promise<{ allocated: number; free: number; total: number }>
+  }
+  resources: {
+    search(q: ResourceSearch): Promise<ResourceSearchResult>
+    project(id: string): Promise<ResourceProject>
+    versions(id: string, filter: { gameVersion?: string; loaders?: string[] }): Promise<ResourceVersion[]>
+    install(req: ResourceInstallRequest): Promise<ResourceInstallResult>
+    gameVersions(): Promise<string[]>
+  }
+  favorites: {
+    list(): Promise<Favorite[]>
+    add(f: Omit<Favorite, 'addedAt'>): Promise<Favorite[]>
+    remove(id: string): Promise<Favorite[]>
   }
   folders: {
     list(): Promise<GameFolder[]>

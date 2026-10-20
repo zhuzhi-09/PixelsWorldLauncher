@@ -4,6 +4,7 @@ import { store, type Page } from '../store'
 const items: { page: Page; icon: string; label: string }[] = [
   { page: 'home', icon: 'home', label: '主页' },
   { page: 'versions', icon: 'deployed_code', label: '版本' },
+  { page: 'download', icon: 'download', label: '下载' },
   { page: 'accounts', icon: 'account_circle', label: '账户' },
   { page: 'settings', icon: 'settings', label: '设置' }
 ]
